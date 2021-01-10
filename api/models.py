@@ -3,6 +3,19 @@ from django.utils import timezone
 from softdelete.models import SoftDeleteModel
 
 
+class Comment(SoftDeleteModel):
+    text = models.CharField(max_length=256)
+    used_times = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'api_comment'
+        verbose_name = 'comment'
+        verbose_name_plural = 'comments'
+
+    def __str__(self):
+        return self.text
+
+
 class Proxy(SoftDeleteModel):
     TYPES = (
         ('HTTP', 'http_https'),
@@ -82,7 +95,7 @@ class Influencer(SoftDeleteModel):
     username = models.CharField(max_length=256)
     last_post_id = models.CharField(max_length=256, blank=True, null=True, default=None)
     last_post_days = models.IntegerField(default=0)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='influencers')
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='influencers', blank=True, null=True)
 
     class Meta:
         db_table = 'api_influencer'
@@ -91,19 +104,6 @@ class Influencer(SoftDeleteModel):
 
     def __str__(self):
         return self.username
-
-
-class Comment(SoftDeleteModel):
-    text = models.CharField(max_length=256)
-    used_times = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = 'api_comment'
-        verbose_name = 'comment'
-        verbose_name_plural = 'comments'
-
-    def __str__(self):
-        return self.text
 
 
 class AccountStatistics(SoftDeleteModel):
@@ -134,10 +134,10 @@ class AccountActivity(SoftDeleteModel):
         ('ERROR', 'error'),
     )
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='activity')
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='activity', blank=True, null=True)
     type = models.CharField(max_length=8, choices=TYPES)
-    influencer = models.ForeignKey(Influencer, on_delete=models.CASCADE, related_name='activity')
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='activity')
+    influencer = models.ForeignKey(Influencer, on_delete=models.CASCADE, related_name='activity', blank=True, null=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='activity', blank=True, null=True)
     datetime = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=256, choices=STATUSES, default='DEFAULT')
 
